@@ -102,6 +102,15 @@ public class PedidoService {
         return converterParaResponse(pedido);
     }
 
+    @Transactional(readOnly = true)
+    public List<PedidoResponse> listarTodos() {
+
+        return pedidoRepository.findAll()
+                .stream()
+                .map(this::converterParaResponse)
+                .toList();
+    }
+
     @Transactional
     public PedidoResponse atualizarStatus(
             Long id,
