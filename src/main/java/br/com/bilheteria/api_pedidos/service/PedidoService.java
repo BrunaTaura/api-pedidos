@@ -90,6 +90,52 @@ public class PedidoService {
         return converterParaResponse(pedidoSalvo);
     }
 
+    @Transactional(readOnly = true)
+    public PedidoResponse buscarPorId(Long id) {
+
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Pedido não encontrado"
+                ));
+
+        return converterParaResponse(pedido);
+    }
+
+    @Transactional
+    public PedidoResponse atualizarStatus(
+            Long id,
+            StatusPedido novoStatus) {
+
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Pedido não encontrado"
+                ));
+
+        if (pedido.getStatus() != StatusPedido.AGUARDANDO_PAGAMENTO) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Somente pedidos aguardando pagamento podem ter o status alterado"
+            );
+        }
+
+        if (novoStatus == null
+                || (novoStatus != StatusPedido.PAGO
+                && novoStatus != StatusPedido.CANCELADO)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Status inválido"
+            );
+        }
+
+        pedido.setStatus(novoStatus);
+
+        Pedido pedidoAtualizado = pedidoRepository.save(pedido);
+
+        return converterParaResponse(pedidoAtualizado);
+    }
+
     private PedidoResponse converterParaResponse(Pedido pedido) {
 
         List<ItemPedidoResponse> itensResponse = new ArrayList<>();

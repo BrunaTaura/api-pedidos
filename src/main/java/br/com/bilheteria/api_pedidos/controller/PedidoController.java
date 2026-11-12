@@ -1,5 +1,6 @@
 package br.com.bilheteria.api_pedidos.controller;
 
+import br.com.bilheteria.api_pedidos.dto.AtualizarStatusPedidoRequest;
 import br.com.bilheteria.api_pedidos.dto.PedidoRequest;
 import br.com.bilheteria.api_pedidos.dto.PedidoResponse;
 import br.com.bilheteria.api_pedidos.service.PedidoService;
@@ -22,5 +23,25 @@ public class PedidoController {
         PedidoResponse pedido = pedidoService.criar(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(pedido);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PedidoResponse> buscarPorId(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(pedidoService.buscarPorId(id));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<PedidoResponse> atualizarStatus(
+            @PathVariable Long id,
+            @RequestBody AtualizarStatusPedidoRequest request) {
+
+        PedidoResponse pedido = pedidoService.atualizarStatus(
+                id,
+                request.status()
+        );
+
+        return ResponseEntity.ok(pedido);
     }
 }
